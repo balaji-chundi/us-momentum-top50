@@ -1,0 +1,2025 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>US Momentum Top 50</title>
+  <meta name="description" content="The 50 S&amp;P 500 stocks with the strongest six-month price trend, with 1-day, 1-week and 1-month change. Updated every US trading day.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Same tokens as the dashboard (base.html), so both copies look identical. */
+    :root {
+      --bg: #05070c; --bg-1: #0a0d16; --bg-2: #10141f; --bg-3: #171c2b;
+      --line: #1f2637; --line-2: #2b3550;
+      --text: #d9dde8; --text-hi: #ffffff; --text-lo: #7a8398; --text-mid: #9aa3ba;
+      --amber: #ffb020; --amber-hi: #ffc043; --amber-soft: rgba(255,176,32,0.10);
+      --green: #26e07f; --red: #ff3860; --red-hi: #ff5c7d; --red-soft: rgba(255,56,96,0.10);
+      --red-line: rgba(255,56,96,0.35);
+      --cyan: #4ac2ff; --cyan-hi: #7cd5ff; --cyan-soft: rgba(74,194,255,0.10);
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+      --sans: 'Inter', system-ui, -apple-system, sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+    body { padding: 8px 16px 0; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { color: var(--cyan-hi); text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+
+
+
+<style>
+  /* Page-scoped. Reuses the dashboard tokens from base.html. */
+  .t50 { max-width: 1180px; margin: 0 auto; font-family: var(--sans); font-size: 13px; color: var(--text); }
+  .t50 .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- hero ---------- */
+  .t50-hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px;
+              padding: 18px 2px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .t50-eyebrow { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+                 color: var(--amber-hi); }
+  .t50-hero h1 { font-size: 24px; line-height: 1.2; font-weight: 600; color: var(--text-hi); margin: 6px 0 6px; }
+  .t50-hero p { margin: 0; color: var(--text-mid); max-width: 560px; line-height: 1.5; }
+  .t50-meta { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .t50-pill { font-family: var(--mono); font-size: 11px; color: var(--text-mid); background: var(--bg-2);
+              border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+  .t50-pill b { color: var(--text-hi); font-weight: 600; }
+
+  /* ---------- KPI tiles ---------- */
+  .t50-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+  .t50-tile { background: var(--bg-1); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .t50-tile .k { font-size: 11px; color: var(--text-lo); text-transform: uppercase; letter-spacing: .06em; }
+  .t50-tile .v { font-size: 22px; font-weight: 600; color: var(--text-hi); margin-top: 4px; }
+  .t50-tile .v small { font-size: 13px; color: var(--text-lo); font-weight: 500; }
+  .t50-tile .s { font-size: 11.5px; color: var(--text-mid); margin-top: 2px; }
+
+  /* ---------- guide ---------- */
+  .t50-guide { background: var(--bg-1); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px; }
+  .t50-guide summary { cursor: pointer; padding: 11px 14px; color: var(--text-hi); font-weight: 600; list-style: none;
+                       display: flex; justify-content: space-between; align-items: center; }
+  .t50-guide summary::-webkit-details-marker { display: none; }
+  .t50-guide summary::after { content: '＋'; color: var(--text-lo); }
+  .t50-guide[open] summary::after { content: '－'; }
+  .t50-guide-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 2px 14px 14px; }
+  .t50-guide-grid h4 { margin: 0 0 4px; font-size: 12px; color: var(--text-hi); font-weight: 600; }
+  .t50-guide-grid p { margin: 0; color: var(--text-mid); line-height: 1.5; font-size: 12.5px; }
+
+  /* ---------- controls ---------- */
+  .t50-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 4px 0 10px; }
+  .t50-controls input, .t50-controls select {
+    background: var(--bg-2); border: 1px solid var(--line-2); color: var(--text-hi); border-radius: 8px;
+    padding: 8px 10px; font: inherit; font-size: 13px; min-height: 36px; }
+  .t50-controls input { flex: 1 1 220px; }
+  .t50-controls input:focus, .t50-controls select:focus, .t50-btn:focus-visible, .t50-chip:focus-visible {
+    outline: 2px solid var(--cyan); outline-offset: 1px; }
+  .t50-btn { background: var(--bg-2); border: 1px solid var(--line-2); color: var(--text-mid); border-radius: 8px;
+             padding: 8px 12px; font: inherit; font-size: 13px; cursor: pointer; min-height: 36px; }
+  .t50-btn[aria-pressed="true"] { border-color: var(--cyan); color: var(--cyan-hi); background: var(--cyan-soft); }
+  .t50-count { margin-left: auto; font-size: 12px; color: var(--text-lo); }
+  .t50-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .t50-chip { background: transparent; border: 1px solid var(--line-2); color: var(--text-mid); border-radius: 999px;
+              padding: 5px 10px; font: inherit; font-size: 12px; cursor: pointer; min-height: 30px; }
+  .t50-chip .c { color: var(--text-lo); margin-left: 4px; font-family: var(--mono); }
+  .t50-chip[aria-pressed="true"] { border-color: var(--text-mid); color: var(--text-hi); background: var(--bg-3); }
+
+  /* ---------- list ---------- */
+  .t50-list { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg-1); }
+  .t50-row { display: grid; align-items: center; gap: 12px; padding: 10px 14px;
+             grid-template-columns: 34px minmax(180px, 2.4fr) minmax(140px, 1.6fr) 74px 74px 74px 88px;
+             grid-template-areas: "rank co mom d1 w1 m1 px";
+             border-top: 1px solid var(--line); }
+  .t50-row:first-child { border-top: 0; }
+  .t50-head { background: var(--bg-2); font-size: 11px; color: var(--text-lo); text-transform: uppercase;
+              letter-spacing: .06em; padding-top: 9px; padding-bottom: 9px; }
+  .t50-head > div:nth-child(n+4) { text-align: right; }
+  .t50-row.held { box-shadow: inset 3px 0 0 var(--amber); }
+  .t50-row:not(.t50-head):hover { background: var(--bg-2); }
+  .t50-rank { grid-area: rank; font-family: var(--mono); color: var(--text-lo); font-size: 12px; }
+  .t50-co { grid-area: co; min-width: 0; }
+  .t50-name { color: var(--text-hi); font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden;
+              text-overflow: ellipsis; display: flex; align-items: center; gap: 8px; }
+  .t50-sub { color: var(--text-lo); font-size: 11.5px; margin-top: 2px; white-space: nowrap; overflow: hidden;
+             text-overflow: ellipsis; }
+  .t50-sub .tk { font-family: var(--mono); color: var(--text-mid); }
+  .t50-tag { font-family: var(--mono); font-size: 10px; font-weight: 600; border-radius: 4px; padding: 1px 6px;
+             flex: none; letter-spacing: .03em; }
+  .t50-tag.held { color: var(--amber-hi); background: var(--amber-soft); border: 1px solid rgba(255,176,32,.35); }
+  .t50-tag.stale { color: var(--red-hi); background: var(--red-soft); border: 1px solid var(--red-line); }
+  .t50-mom { grid-area: mom; }
+  .t50-mom .v { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text-hi); font-size: 12.5px; }
+  .t50-bar { height: 4px; background: var(--bg-3); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+  .t50-bar i { display: block; height: 100%; background: var(--cyan); border-radius: 0 2px 2px 0; }
+  .t50-d1 { grid-area: d1; } .t50-w1 { grid-area: w1; } .t50-m1 { grid-area: m1; }
+  .t50-d1, .t50-w1, .t50-m1, .t50-px { text-align: right; }
+  .t50-px { grid-area: px; font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text); }
+  .t50-chg { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12.5px; white-space: nowrap; }
+  .t50-chg .arw { font-size: 8px; margin-right: 4px; vertical-align: 1px; }
+  .t50-chg.up { color: var(--green); } .t50-chg.down { color: var(--red-hi); } .t50-chg.flat { color: var(--text-lo); }
+  .t50-lbl { display: none; }
+  .t50-rk-m { display: none; font-family: var(--mono); color: var(--text-lo); font-weight: 500; font-size: 12px; }
+  .t50-empty { padding: 28px 14px; color: var(--text-mid); text-align: center; }
+  .t50-foot { color: var(--text-lo); font-size: 11.5px; margin: 12px 2px 24px; line-height: 1.6; }
+
+  /* ---------- tablet ---------- */
+  @media (max-width: 1100px) {
+    .t50-guide-grid { grid-template-columns: repeat(2, 1fr); }
+    .t50-row { grid-template-columns: 30px minmax(150px, 2fr) minmax(110px, 1.2fr) 66px 66px 66px 78px; gap: 8px; }
+  }
+
+  /* ---------- phone: each row becomes a card ---------- */
+  @media (max-width: 720px) {
+    .t50 { font-size: 13px; }
+    .t50-hero { padding-top: 6px; align-items: flex-start; }
+    .t50-hero h1 { font-size: 20px; }
+    .t50-meta { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+    .t50-tiles { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .t50-tile .v { font-size: 19px; }
+    .t50-guide-grid { grid-template-columns: 1fr; }
+    .t50-count { margin-left: 0; width: 100%; }
+    .t50-controls select, .t50-btn { flex: 1 1 auto; }
+    .t50-head { display: none; }
+    .t50-list { border: 0; background: transparent; overflow: visible; }
+    .t50-row { grid-template-columns: repeat(6, 1fr);
+               grid-template-areas: "co co co co px px" "mom mom mom mom mom mom" "d1 d1 w1 w1 m1 m1";
+               gap: 8px; padding: 12px; margin-bottom: 8px; background: var(--bg-1);
+               border: 1px solid var(--line); border-radius: 10px; }
+    .t50-row:first-child { border-top: 1px solid var(--line); }
+    .t50-rank { display: none; }
+    .t50-rk-m { display: inline; }
+    .t50-d1, .t50-w1, .t50-m1 { text-align: left; background: var(--bg-2); border-radius: 8px; padding: 6px 8px; }
+    .t50-lbl { display: block; font-size: 10px; color: var(--text-lo); text-transform: uppercase; letter-spacing: .06em;
+               margin-bottom: 2px; font-family: var(--sans); }
+    .t50-name { font-size: 15px; white-space: normal; display: block; line-height: 1.35; }
+    .t50-name .t50-tag { display: inline-block; margin-left: 6px; vertical-align: 2px; }
+    .t50-rk-m { margin-right: 6px; }
+    .t50-px { align-self: start; font-size: 13px; color: var(--text-hi); }
+  }
+</style>
+
+<div class="t50">
+
+  <header class="t50-hero">
+    <div>
+      <div class="t50-eyebrow">US · S&amp;P 500 · momentum leaders</div>
+      <h1>Top 50 momentum stocks</h1>
+      <p>The 50 S&amp;P 500 stocks with the strongest six-month price trend, ranked the same way the
+         us_momentum strategy picks its holdings. Updated every trading day after the US market closes.</p>
+    </div>
+    <div class="t50-meta">
+      <span class="t50-pill">Prices as of <b>Fri 16 Oct 2026</b> close</span>
+      <span class="t50-pill">Next update <b>Tue 20 Oct, 03:30 IST</b> · 22:00 UTC</span>
+    </div>
+  </header>
+
+  
+
+  <section class="t50-tiles" aria-label="Summary">
+    <div class="t50-tile">
+      <div class="k">Up on the day</div>
+      <div class="v">9<small> / 50</small></div>
+      <div class="s">stocks that closed higher</div>
+    </div>
+    <div class="t50-tile">
+      <div class="k">Typical week</div>
+      <div class="v">-0.8%</div>
+      <div class="s">median 1-week change</div>
+    </div>
+    <div class="t50-tile">
+      <div class="k">Typical month</div>
+      <div class="v">-1.5%</div>
+      <div class="s">median 1-month change</div>
+    </div>
+    <div class="t50-tile">
+      <div class="k">Held by the strategy</div>
+      <div class="v">10</div>
+      <div class="s">top 10, marked in amber</div>
+    </div>
+  </section>
+
+  <details class="t50-guide" id="t50-guide">
+    <summary>How to read this list</summary>
+    <div class="t50-guide-grid">
+      <div><h4>Momentum score</h4>
+        <p>The stock's return over roughly the last 6 months, leaving out the most recent month. Higher means a
+           stronger, steadier uptrend. The bar compares it with the #1 stock.</p></div>
+      <div><h4>1D · 1W · 1M</h4>
+        <p>Price change over the last 1, 5 and 21 trading days, from closing prices. ▲ green is up, ▼ red is down.
+           A strong trend with a red week is a pullback, not necessarily a reversal.</p></div>
+      <div><h4>Held</h4>
+        <p>The us_momentum paper strategy holds the top 10 names and re-balances every
+           21 trading days, so a stock can sit in the top 10 here without being bought yet.</p></div>
+      <div><h4>Stale</h4>
+        <p>The stock's latest price is older than everyone else's, usually a trading halt or a late data
+           update. Treat its numbers with caution until the next refresh.</p></div>
+    </div>
+  </details>
+
+  <div class="t50-controls" role="search">
+    <input id="t50-q" type="search" placeholder="Search company or ticker" aria-label="Search company or ticker">
+    <select id="t50-sort" aria-label="Sort by">
+      <option value="rank">Sort: momentum rank</option>
+      <option value="d1">Sort: 1-day change</option>
+      <option value="w1">Sort: 1-week change</option>
+      <option value="m1">Sort: 1-month change</option>
+      <option value="name">Sort: company A–Z</option>
+    </select>
+    <button class="t50-btn" id="t50-held" type="button" aria-pressed="false">Held only</button>
+    <span class="t50-count" id="t50-count" aria-live="polite">50 stocks</span>
+  </div>
+
+  <div class="t50-chips" aria-label="Filter by sector">
+    <button class="t50-chip" type="button" data-sector="" aria-pressed="true">All sectors<span class="c">50</span></button>
+    
+    <button class="t50-chip" type="button" data-sector="Information Technology" aria-pressed="false">Information Technology<span class="c">26</span></button>
+    
+    <button class="t50-chip" type="button" data-sector="Health Care" aria-pressed="false">Health Care<span class="c">13</span></button>
+    
+    <button class="t50-chip" type="button" data-sector="Industrials" aria-pressed="false">Industrials<span class="c">4</span></button>
+    
+    <button class="t50-chip" type="button" data-sector="Energy" aria-pressed="false">Energy<span class="c">3</span></button>
+    
+    <button class="t50-chip" type="button" data-sector="Consumer Staples" aria-pressed="false">Consumer Staples<span class="c">2</span></button>
+    
+    <button class="t50-chip" type="button" data-sector="Consumer Discretionary" aria-pressed="false">Consumer Discretionary<span class="c">1</span></button>
+    
+    <button class="t50-chip" type="button" data-sector="Materials" aria-pressed="false">Materials<span class="c">1</span></button>
+    
+  </div>
+
+  <div class="t50-list" id="t50-list" role="table" aria-label="Top 50 momentum stocks">
+    <div class="t50-row t50-head" role="row">
+      <div role="columnheader">#</div><div role="columnheader">Company</div><div role="columnheader">Momentum score</div>
+      <div role="columnheader">1 day</div><div role="columnheader">1 week</div><div role="columnheader">1 month</div>
+      <div role="columnheader">Last price</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="1" data-name="dell technologies" data-sym="dell"
+         data-sector="Information Technology" data-held="1"
+         data-d1="-4.58"
+         data-w1="-22.92"
+         data-m1="-23.23">
+      <div class="t50-rank" role="cell">1</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#1</span>Dell Technologies
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">DELL</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+200.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 100.0%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -4.58 percent">
+      <span class="arw" aria-hidden="true">▼</span>-4.6%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -22.92 percent">
+      <span class="arw" aria-hidden="true">▼</span>-22.9%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -23.23 percent">
+      <span class="arw" aria-hidden="true">▼</span>-23.2%
+    </span></div>
+      <div class="t50-px" role="cell">$451.71</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="2" data-name="moderna" data-sym="mrna"
+         data-sector="Health Care" data-held="1"
+         data-d1="-7.82"
+         data-w1="-3.11"
+         data-m1="37.92">
+      <div class="t50-rank" role="cell">2</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#2</span>Moderna
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">MRNA</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+194.2%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 96.7%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -7.82 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.8%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -3.11 percent">
+      <span class="arw" aria-hidden="true">▼</span>-3.1%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +37.92 percent">
+      <span class="arw" aria-hidden="true">▲</span>+37.9%
+    </span></div>
+      <div class="t50-px" role="cell">$218.01</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="3" data-name="hewlett packard enterprise" data-sym="hpe"
+         data-sector="Information Technology" data-held="1"
+         data-d1="-5.97"
+         data-w1="-24.95"
+         data-m1="-9.68">
+      <div class="t50-rank" role="cell">3</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#3</span>Hewlett Packard Enterprise
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">HPE</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+132.1%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 65.8%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -5.97 percent">
+      <span class="arw" aria-hidden="true">▼</span>-6.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -24.95 percent">
+      <span class="arw" aria-hidden="true">▼</span>-24.9%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -9.68 percent">
+      <span class="arw" aria-hidden="true">▼</span>-9.7%
+    </span></div>
+      <div class="t50-px" role="cell">$55.13</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="4" data-name="crowdstrike" data-sym="crwd"
+         data-sector="Information Technology" data-held="1"
+         data-d1="-7.02"
+         data-w1="-17.32"
+         data-m1="-7.45">
+      <div class="t50-rank" role="cell">4</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#4</span>CrowdStrike
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">CRWD</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+131.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 65.7%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -7.02 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -17.32 percent">
+      <span class="arw" aria-hidden="true">▼</span>-17.3%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -7.45 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.5%
+    </span></div>
+      <div class="t50-px" role="cell">$227.39</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="5" data-name="palo alto networks" data-sym="panw"
+         data-sector="Information Technology" data-held="1"
+         data-d1="-7.63"
+         data-w1="-18.33"
+         data-m1="-8.81">
+      <div class="t50-rank" role="cell">5</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#5</span>Palo Alto Networks
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">PANW</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+123.5%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 61.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -7.63 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.6%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -18.33 percent">
+      <span class="arw" aria-hidden="true">▼</span>-18.3%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -8.81 percent">
+      <span class="arw" aria-hidden="true">▼</span>-8.8%
+    </span></div>
+      <div class="t50-px" role="cell">$342.00</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="6" data-name="micron technology" data-sym="mu"
+         data-sector="Information Technology" data-held="1"
+         data-d1="-5.63"
+         data-w1="-14.58"
+         data-m1="-10.08">
+      <div class="t50-rank" role="cell">6</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#6</span>Micron Technology
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">MU</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+114.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 57.2%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -5.63 percent">
+      <span class="arw" aria-hidden="true">▼</span>-5.6%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -14.58 percent">
+      <span class="arw" aria-hidden="true">▼</span>-14.6%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -10.08 percent">
+      <span class="arw" aria-hidden="true">▼</span>-10.1%
+    </span></div>
+      <div class="t50-px" role="cell">$878.84</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="7" data-name="fortinet" data-sym="ftnt"
+         data-sector="Information Technology" data-held="1"
+         data-d1="-7.03"
+         data-w1="-13.16"
+         data-m1="-2.0">
+      <div class="t50-rank" role="cell">7</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#7</span>Fortinet
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">FTNT</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+110.9%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 55.2%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -7.03 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -13.16 percent">
+      <span class="arw" aria-hidden="true">▼</span>-13.2%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -2.00 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.0%
+    </span></div>
+      <div class="t50-px" role="cell">$169.13</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="8" data-name="marathon petroleum" data-sym="mpc"
+         data-sector="Energy" data-held="1"
+         data-d1="0.24"
+         data-w1="5.06"
+         data-m1="13.3">
+      <div class="t50-rank" role="cell">8</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#8</span>Marathon Petroleum
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">MPC</span> · Energy</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+98.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 49.2%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +0.24 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.2%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +5.06 percent">
+      <span class="arw" aria-hidden="true">▲</span>+5.1%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +13.30 percent">
+      <span class="arw" aria-hidden="true">▲</span>+13.3%
+    </span></div>
+      <div class="t50-px" role="cell">$478.07</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="9" data-name="advanced micro devices" data-sym="amd"
+         data-sector="Information Technology" data-held="1"
+         data-d1="-5.95"
+         data-w1="-13.05"
+         data-m1="-3.0">
+      <div class="t50-rank" role="cell">9</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#9</span>Advanced Micro Devices
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">AMD</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+95.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 47.7%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -5.95 percent">
+      <span class="arw" aria-hidden="true">▼</span>-6.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -13.05 percent">
+      <span class="arw" aria-hidden="true">▼</span>-13.1%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -3.00 percent">
+      <span class="arw" aria-hidden="true">▼</span>-3.0%
+    </span></div>
+      <div class="t50-px" role="cell">$528.75</div>
+    </div>
+    
+    <div class="t50-row held" role="row"
+         data-rank="10" data-name="netapp" data-sym="ntap"
+         data-sector="Information Technology" data-held="1"
+         data-d1="-5.08"
+         data-w1="-14.06"
+         data-m1="3.73">
+      <div class="t50-rank" role="cell">10</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#10</span>NetApp
+          <span class="t50-tag held">HELD</span>
+          
+        </div>
+        <div class="t50-sub"><span class="tk">NTAP</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+89.0%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 44.3%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -5.08 percent">
+      <span class="arw" aria-hidden="true">▼</span>-5.1%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -14.06 percent">
+      <span class="arw" aria-hidden="true">▼</span>-14.1%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +3.73 percent">
+      <span class="arw" aria-hidden="true">▲</span>+3.7%
+    </span></div>
+      <div class="t50-px" role="cell">$203.80</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="11" data-name="humana" data-sym="hum"
+         data-sector="Health Care" data-held="0"
+         data-d1="-4.41"
+         data-w1="-4.33"
+         data-m1="7.45">
+      <div class="t50-rank" role="cell">11</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#11</span>Humana
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">HUM</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+87.9%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 43.8%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -4.41 percent">
+      <span class="arw" aria-hidden="true">▼</span>-4.4%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -4.33 percent">
+      <span class="arw" aria-hidden="true">▼</span>-4.3%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +7.45 percent">
+      <span class="arw" aria-hidden="true">▲</span>+7.5%
+    </span></div>
+      <div class="t50-px" role="cell">$413.16</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="12" data-name="datadog" data-sym="ddog"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-7.19"
+         data-w1="-15.74"
+         data-m1="4.71">
+      <div class="t50-rank" role="cell">12</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#12</span>Datadog
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">DDOG</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+86.4%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 43.0%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -7.19 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.2%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -15.74 percent">
+      <span class="arw" aria-hidden="true">▼</span>-15.7%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +4.71 percent">
+      <span class="arw" aria-hidden="true">▲</span>+4.7%
+    </span></div>
+      <div class="t50-px" role="cell">$247.11</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="13" data-name="valero energy" data-sym="vlo"
+         data-sector="Energy" data-held="0"
+         data-d1="0.15"
+         data-w1="2.53"
+         data-m1="7.8">
+      <div class="t50-rank" role="cell">13</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#13</span>Valero Energy
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">VLO</span> · Energy</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+86.0%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 42.9%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +0.15 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.1%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +2.53 percent">
+      <span class="arw" aria-hidden="true">▲</span>+2.5%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +7.80 percent">
+      <span class="arw" aria-hidden="true">▲</span>+7.8%
+    </span></div>
+      <div class="t50-px" role="cell">$444.71</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="14" data-name="illumina, inc." data-sym="ilmn"
+         data-sector="Health Care" data-held="0"
+         data-d1="-2.01"
+         data-w1="-5.62"
+         data-m1="7.08">
+      <div class="t50-rank" role="cell">14</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#14</span>Illumina, Inc.
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">ILMN</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+82.3%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 41.0%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -2.01 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -5.62 percent">
+      <span class="arw" aria-hidden="true">▼</span>-5.6%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +7.08 percent">
+      <span class="arw" aria-hidden="true">▲</span>+7.1%
+    </span></div>
+      <div class="t50-px" role="cell">$262.54</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="15" data-name="hp inc." data-sym="hpq"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-2.72"
+         data-w1="-0.63"
+         data-m1="-13.42">
+      <div class="t50-rank" role="cell">15</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#15</span>HP Inc.
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">HPQ</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+78.2%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 38.9%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -2.72 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.7%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -0.63 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.6%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -13.42 percent">
+      <span class="arw" aria-hidden="true">▼</span>-13.4%
+    </span></div>
+      <div class="t50-px" role="cell">$30.01</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="16" data-name="phillips 66" data-sym="psx"
+         data-sector="Energy" data-held="0"
+         data-d1="1.37"
+         data-w1="5.39"
+         data-m1="6.91">
+      <div class="t50-rank" role="cell">16</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#16</span>Phillips 66
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">PSX</span> · Energy</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+77.6%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 38.6%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +1.37 percent">
+      <span class="arw" aria-hidden="true">▲</span>+1.4%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +5.39 percent">
+      <span class="arw" aria-hidden="true">▲</span>+5.4%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +6.91 percent">
+      <span class="arw" aria-hidden="true">▲</span>+6.9%
+    </span></div>
+      <div class="t50-px" role="cell">$293.17</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="17" data-name="centene corporation" data-sym="cnc"
+         data-sector="Health Care" data-held="0"
+         data-d1="-1.91"
+         data-w1="5.81"
+         data-m1="3.07">
+      <div class="t50-rank" role="cell">17</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#17</span>Centene Corporation
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">CNC</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+75.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 37.7%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -1.91 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.9%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +5.81 percent">
+      <span class="arw" aria-hidden="true">▲</span>+5.8%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +3.07 percent">
+      <span class="arw" aria-hidden="true">▲</span>+3.1%
+    </span></div>
+      <div class="t50-px" role="cell">$69.16</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="18" data-name="twilio" data-sym="twlo"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-10.62"
+         data-w1="-15.58"
+         data-m1="-0.76">
+      <div class="t50-rank" role="cell">18</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#18</span>Twilio
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">TWLO</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+75.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 37.7%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -10.62 percent">
+      <span class="arw" aria-hidden="true">▼</span>-10.6%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -15.58 percent">
+      <span class="arw" aria-hidden="true">▼</span>-15.6%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -0.76 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.8%
+    </span></div>
+      <div class="t50-px" role="cell">$244.37</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="19" data-name="sandisk" data-sym="sndk"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-6.85"
+         data-w1="-17.86"
+         data-m1="-19.52">
+      <div class="t50-rank" role="cell">19</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#19</span>Sandisk
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">SNDK</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+75.3%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 37.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -6.85 percent">
+      <span class="arw" aria-hidden="true">▼</span>-6.8%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -17.86 percent">
+      <span class="arw" aria-hidden="true">▼</span>-17.9%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -19.52 percent">
+      <span class="arw" aria-hidden="true">▼</span>-19.5%
+    </span></div>
+      <div class="t50-px" role="cell">$1,299.30</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="20" data-name="marvell technology" data-sym="mrvl"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-5.56"
+         data-w1="-17.24"
+         data-m1="-5.35">
+      <div class="t50-rank" role="cell">20</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#20</span>Marvell Technology
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">MRVL</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+72.4%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 36.1%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -5.56 percent">
+      <span class="arw" aria-hidden="true">▼</span>-5.6%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -17.24 percent">
+      <span class="arw" aria-hidden="true">▼</span>-17.2%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -5.35 percent">
+      <span class="arw" aria-hidden="true">▼</span>-5.3%
+    </span></div>
+      <div class="t50-px" role="cell">$227.83</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="21" data-name="workday, inc." data-sym="wday"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-2.96"
+         data-w1="2.26"
+         data-m1="-4.25">
+      <div class="t50-rank" role="cell">21</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#21</span>Workday, Inc.
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">WDAY</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+60.9%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 30.3%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -2.96 percent">
+      <span class="arw" aria-hidden="true">▼</span>-3.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +2.26 percent">
+      <span class="arw" aria-hidden="true">▲</span>+2.3%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -4.25 percent">
+      <span class="arw" aria-hidden="true">▼</span>-4.2%
+    </span></div>
+      <div class="t50-px" role="cell">$190.81</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="22" data-name="intel" data-sym="intc"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-5.79"
+         data-w1="-14.18"
+         data-m1="-17.42">
+      <div class="t50-rank" role="cell">22</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#22</span>Intel
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">INTC</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+58.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 29.3%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -5.79 percent">
+      <span class="arw" aria-hidden="true">▼</span>-5.8%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -14.18 percent">
+      <span class="arw" aria-hidden="true">▼</span>-14.2%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -17.42 percent">
+      <span class="arw" aria-hidden="true">▼</span>-17.4%
+    </span></div>
+      <div class="t50-px" role="cell">$89.85</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="23" data-name="veeva systems" data-sym="veev"
+         data-sector="Health Care" data-held="0"
+         data-d1="-0.85"
+         data-w1="4.81"
+         data-m1="17.67">
+      <div class="t50-rank" role="cell">23</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#23</span>Veeva Systems
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">VEEV</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+57.0%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 28.4%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -0.85 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.8%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +4.81 percent">
+      <span class="arw" aria-hidden="true">▲</span>+4.8%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +17.67 percent">
+      <span class="arw" aria-hidden="true">▲</span>+17.7%
+    </span></div>
+      <div class="t50-px" role="cell">$310.36</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="24" data-name="revvity" data-sym="rvty"
+         data-sector="Health Care" data-held="0"
+         data-d1="-1.34"
+         data-w1="-1.0"
+         data-m1="4.03">
+      <div class="t50-rank" role="cell">24</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#24</span>Revvity
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">RVTY</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+56.3%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 28.0%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -1.34 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.3%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -1.00 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.0%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +4.03 percent">
+      <span class="arw" aria-hidden="true">▲</span>+4.0%
+    </span></div>
+      <div class="t50-px" role="cell">$152.64</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="25" data-name="skyworks solutions" data-sym="swks"
+         data-sector="Information Technology" data-held="0"
+         data-d1="0.76"
+         data-w1="4.39"
+         data-m1="-12.72">
+      <div class="t50-rank" role="cell">25</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#25</span>Skyworks Solutions
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">SWKS</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+56.1%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 28.0%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +0.76 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.8%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +4.39 percent">
+      <span class="arw" aria-hidden="true">▲</span>+4.4%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -12.72 percent">
+      <span class="arw" aria-hidden="true">▼</span>-12.7%
+    </span></div>
+      <div class="t50-px" role="cell">$79.70</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="26" data-name="everpure" data-sym="p"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-7.04"
+         data-w1="-19.73"
+         data-m1="19.25">
+      <div class="t50-rank" role="cell">26</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#26</span>Everpure
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">P</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+55.3%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 27.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -7.04 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -19.73 percent">
+      <span class="arw" aria-hidden="true">▼</span>-19.7%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +19.25 percent">
+      <span class="arw" aria-hidden="true">▲</span>+19.2%
+    </span></div>
+      <div class="t50-px" role="cell">$124.01</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="27" data-name="charles river laboratories" data-sym="crl"
+         data-sector="Health Care" data-held="0"
+         data-d1="-1.99"
+         data-w1="-0.54"
+         data-m1="6.56">
+      <div class="t50-rank" role="cell">27</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#27</span>Charles River Laboratories
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">CRL</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+53.2%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 26.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -1.99 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -0.54 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.5%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +6.56 percent">
+      <span class="arw" aria-hidden="true">▲</span>+6.6%
+    </span></div>
+      <div class="t50-px" role="cell">$300.15</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="28" data-name="iqvia" data-sym="iqv"
+         data-sector="Health Care" data-held="0"
+         data-d1="-1.53"
+         data-w1="2.7"
+         data-m1="-0.94">
+      <div class="t50-rank" role="cell">28</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#28</span>IQVIA
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">IQV</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+52.7%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 26.2%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -1.53 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.5%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +2.70 percent">
+      <span class="arw" aria-hidden="true">▲</span>+2.7%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -0.94 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.9%
+    </span></div>
+      <div class="t50-px" role="cell">$266.90</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="29" data-name="gen digital" data-sym="gen"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-2.66"
+         data-w1="3.91"
+         data-m1="-20.03">
+      <div class="t50-rank" role="cell">29</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#29</span>Gen Digital
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">GEN</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+51.6%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 25.7%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -2.66 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.7%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +3.91 percent">
+      <span class="arw" aria-hidden="true">▲</span>+3.9%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -20.03 percent">
+      <span class="arw" aria-hidden="true">▼</span>-20.0%
+    </span></div>
+      <div class="t50-px" role="cell">$24.16</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="30" data-name="zebra technologies" data-sym="zbra"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-2.25"
+         data-w1="-4.69"
+         data-m1="6.1">
+      <div class="t50-rank" role="cell">30</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#30</span>Zebra Technologies
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">ZBRA</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+48.4%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 24.1%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -2.25 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.2%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -4.69 percent">
+      <span class="arw" aria-hidden="true">▼</span>-4.7%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +6.10 percent">
+      <span class="arw" aria-hidden="true">▲</span>+6.1%
+    </span></div>
+      <div class="t50-px" role="cell">$369.01</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="31" data-name="best buy" data-sym="bby"
+         data-sector="Consumer Discretionary" data-held="0"
+         data-d1="-1.64"
+         data-w1="6.46"
+         data-m1="-2.04">
+      <div class="t50-rank" role="cell">31</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#31</span>Best Buy
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">BBY</span> · Consumer Discretionary</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+47.3%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 23.6%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -1.64 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.6%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +6.46 percent">
+      <span class="arw" aria-hidden="true">▲</span>+6.5%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -2.04 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.0%
+    </span></div>
+      <div class="t50-px" role="cell">$92.63</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="32" data-name="seagate technology" data-sym="stx"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-7.5"
+         data-w1="-18.39"
+         data-m1="-20.37">
+      <div class="t50-rank" role="cell">32</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#32</span>Seagate Technology
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">STX</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+46.7%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 23.3%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -7.50 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.5%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -18.39 percent">
+      <span class="arw" aria-hidden="true">▼</span>-18.4%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -20.37 percent">
+      <span class="arw" aria-hidden="true">▼</span>-20.4%
+    </span></div>
+      <div class="t50-px" role="cell">$639.01</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="33" data-name="servicenow" data-sym="now"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-4.44"
+         data-w1="0.79"
+         data-m1="2.53">
+      <div class="t50-rank" role="cell">33</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#33</span>ServiceNow
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">NOW</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+43.2%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 21.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -4.44 percent">
+      <span class="arw" aria-hidden="true">▼</span>-4.4%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +0.79 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.8%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +2.53 percent">
+      <span class="arw" aria-hidden="true">▲</span>+2.5%
+    </span></div>
+      <div class="t50-px" role="cell">$141.97</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="34" data-name="supermicro" data-sym="smci"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-9.86"
+         data-w1="-24.44"
+         data-m1="-21.61">
+      <div class="t50-rank" role="cell">34</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#34</span>Supermicro
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">SMCI</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+41.3%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 20.6%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -9.86 percent">
+      <span class="arw" aria-hidden="true">▼</span>-9.9%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -24.44 percent">
+      <span class="arw" aria-hidden="true">▼</span>-24.4%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -21.61 percent">
+      <span class="arw" aria-hidden="true">▼</span>-21.6%
+    </span></div>
+      <div class="t50-px" role="cell">$31.63</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="35" data-name="qualcomm" data-sym="qcom"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-3.53"
+         data-w1="-1.93"
+         data-m1="-8.8">
+      <div class="t50-rank" role="cell">35</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#35</span>Qualcomm
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">QCOM</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+39.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 19.8%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -3.53 percent">
+      <span class="arw" aria-hidden="true">▼</span>-3.5%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -1.93 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.9%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -8.80 percent">
+      <span class="arw" aria-hidden="true">▼</span>-8.8%
+    </span></div>
+      <div class="t50-px" role="cell">$172.11</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="36" data-name="f5, inc." data-sym="ffiv"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-3.19"
+         data-w1="-7.88"
+         data-m1="1.7">
+      <div class="t50-rank" role="cell">36</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#36</span>F5, Inc.
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">FFIV</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+39.8%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 19.8%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -3.19 percent">
+      <span class="arw" aria-hidden="true">▼</span>-3.2%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -7.88 percent">
+      <span class="arw" aria-hidden="true">▼</span>-7.9%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +1.70 percent">
+      <span class="arw" aria-hidden="true">▲</span>+1.7%
+    </span></div>
+      <div class="t50-px" role="cell">$442.03</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="37" data-name="automatic data processing" data-sym="adp"
+         data-sector="Industrials" data-held="0"
+         data-d1="1.14"
+         data-w1="6.65"
+         data-m1="6.12">
+      <div class="t50-rank" role="cell">37</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#37</span>Automatic Data Processing
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">ADP</span> · Industrials</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+37.7%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 18.8%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +1.14 percent">
+      <span class="arw" aria-hidden="true">▲</span>+1.1%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +6.65 percent">
+      <span class="arw" aria-hidden="true">▲</span>+6.7%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +6.12 percent">
+      <span class="arw" aria-hidden="true">▲</span>+6.1%
+    </span></div>
+      <div class="t50-px" role="cell">$288.90</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="38" data-name="dexcom" data-sym="dxcm"
+         data-sector="Health Care" data-held="0"
+         data-d1="-1.9"
+         data-w1="2.29"
+         data-m1="-2.15">
+      <div class="t50-rank" role="cell">38</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#38</span>Dexcom
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">DXCM</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+37.4%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 18.6%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -1.90 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.9%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +2.29 percent">
+      <span class="arw" aria-hidden="true">▲</span>+2.3%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -2.15 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.1%
+    </span></div>
+      <div class="t50-px" role="cell">$86.04</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="39" data-name="nucor" data-sym="nue"
+         data-sector="Materials" data-held="0"
+         data-d1="0.63"
+         data-w1="2.38"
+         data-m1="-3.11">
+      <div class="t50-rank" role="cell">39</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#39</span>Nucor
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">NUE</span> · Materials</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+35.7%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 17.8%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +0.63 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.6%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +2.38 percent">
+      <span class="arw" aria-hidden="true">▲</span>+2.4%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -3.11 percent">
+      <span class="arw" aria-hidden="true">▼</span>-3.1%
+    </span></div>
+      <div class="t50-px" role="cell">$256.29</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="40" data-name="bloom energy" data-sym="be"
+         data-sector="Industrials" data-held="0"
+         data-d1="-6.34"
+         data-w1="-21.1"
+         data-m1="-21.17">
+      <div class="t50-rank" role="cell">40</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#40</span>Bloom Energy
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">BE</span> · Industrials</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+35.1%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 17.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -6.34 percent">
+      <span class="arw" aria-hidden="true">▼</span>-6.3%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -21.10 percent">
+      <span class="arw" aria-hidden="true">▼</span>-21.1%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -21.17 percent">
+      <span class="arw" aria-hidden="true">▼</span>-21.2%
+    </span></div>
+      <div class="t50-px" role="cell">$221.31</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="41" data-name="west pharmaceutical services" data-sym="wst"
+         data-sector="Health Care" data-held="0"
+         data-d1="0.26"
+         data-w1="4.92"
+         data-m1="4.75">
+      <div class="t50-rank" role="cell">41</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#41</span>West Pharmaceutical Services
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">WST</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+34.1%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 17.0%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +0.26 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.3%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +4.92 percent">
+      <span class="arw" aria-hidden="true">▲</span>+4.9%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +4.75 percent">
+      <span class="arw" aria-hidden="true">▲</span>+4.8%
+    </span></div>
+      <div class="t50-px" role="cell">$384.02</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="42" data-name="salesforce" data-sym="crm"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-2.45"
+         data-w1="5.05"
+         data-m1="-0.89">
+      <div class="t50-rank" role="cell">42</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#42</span>Salesforce
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">CRM</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+33.9%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 16.9%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -2.45 percent">
+      <span class="arw" aria-hidden="true">▼</span>-2.5%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +5.05 percent">
+      <span class="arw" aria-hidden="true">▲</span>+5.0%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -0.89 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.9%
+    </span></div>
+      <div class="t50-px" role="cell">$240.70</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="43" data-name="flex ltd." data-sym="flex"
+         data-sector="Information Technology" data-held="0"
+         data-d1="-8.16"
+         data-w1="-24.51"
+         data-m1="-17.02">
+      <div class="t50-rank" role="cell">43</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#43</span>Flex Ltd.
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">FLEX</span> · Information Technology</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+33.2%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 16.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -8.16 percent">
+      <span class="arw" aria-hidden="true">▼</span>-8.2%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg down"
+          aria-label="1 week -24.51 percent">
+      <span class="arw" aria-hidden="true">▼</span>-24.5%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -17.02 percent">
+      <span class="arw" aria-hidden="true">▼</span>-17.0%
+    </span></div>
+      <div class="t50-px" role="cell">$90.46</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="44" data-name="archer daniels midland" data-sym="adm"
+         data-sector="Consumer Staples" data-held="0"
+         data-d1="-0.39"
+         data-w1="3.4"
+         data-m1="-6.22">
+      <div class="t50-rank" role="cell">44</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#44</span>Archer Daniels Midland
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">ADM</span> · Consumer Staples</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+33.1%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 16.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -0.39 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.4%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +3.40 percent">
+      <span class="arw" aria-hidden="true">▲</span>+3.4%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -6.22 percent">
+      <span class="arw" aria-hidden="true">▼</span>-6.2%
+    </span></div>
+      <div class="t50-px" role="cell">$82.61</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="45" data-name="j.m. smucker company (the)" data-sym="sjm"
+         data-sector="Consumer Staples" data-held="0"
+         data-d1="1.19"
+         data-w1="6.34"
+         data-m1="2.97">
+      <div class="t50-rank" role="cell">45</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#45</span>J.M. Smucker Company (The)
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">SJM</span> · Consumer Staples</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+32.2%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 16.1%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +1.19 percent">
+      <span class="arw" aria-hidden="true">▲</span>+1.2%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +6.34 percent">
+      <span class="arw" aria-hidden="true">▲</span>+6.3%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +2.97 percent">
+      <span class="arw" aria-hidden="true">▲</span>+3.0%
+    </span></div>
+      <div class="t50-px" role="cell">$127.43</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="46" data-name="waters corporation" data-sym="wat"
+         data-sector="Health Care" data-held="0"
+         data-d1="-1.62"
+         data-w1="0.73"
+         data-m1="1.68">
+      <div class="t50-rank" role="cell">46</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#46</span>Waters Corporation
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">WAT</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+31.1%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 15.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -1.62 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.6%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +0.73 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.7%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +1.68 percent">
+      <span class="arw" aria-hidden="true">▲</span>+1.7%
+    </span></div>
+      <div class="t50-px" role="cell">$436.95</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="47" data-name="incyte" data-sym="incy"
+         data-sector="Health Care" data-held="0"
+         data-d1="-0.18"
+         data-w1="0.25"
+         data-m1="-11.4">
+      <div class="t50-rank" role="cell">47</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#47</span>Incyte
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">INCY</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+30.5%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 15.2%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -0.18 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.2%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +0.25 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.2%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -11.40 percent">
+      <span class="arw" aria-hidden="true">▼</span>-11.4%
+    </span></div>
+      <div class="t50-px" role="cell">$113.07</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="48" data-name="paychex" data-sym="payx"
+         data-sector="Industrials" data-held="0"
+         data-d1="0.77"
+         data-w1="7.36"
+         data-m1="-4.19">
+      <div class="t50-rank" role="cell">48</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#48</span>Paychex
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">PAYX</span> · Industrials</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+29.7%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 14.8%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg up"
+          aria-label="1 day +0.77 percent">
+      <span class="arw" aria-hidden="true">▲</span>+0.8%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +7.36 percent">
+      <span class="arw" aria-hidden="true">▲</span>+7.4%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg down"
+          aria-label="1 month -4.19 percent">
+      <span class="arw" aria-hidden="true">▼</span>-4.2%
+    </span></div>
+      <div class="t50-px" role="cell">$111.63</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="49" data-name="elevance health" data-sym="elv"
+         data-sector="Health Care" data-held="0"
+         data-d1="-0.04"
+         data-w1="3.77"
+         data-m1="3.38">
+      <div class="t50-rank" role="cell">49</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#49</span>Elevance Health
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">ELV</span> · Health Care</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+29.3%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 14.6%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -0.04 percent">
+      <span class="arw" aria-hidden="true">▼</span>-0.0%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +3.77 percent">
+      <span class="arw" aria-hidden="true">▲</span>+3.8%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +3.38 percent">
+      <span class="arw" aria-hidden="true">▲</span>+3.4%
+    </span></div>
+      <div class="t50-px" role="cell">$428.26</div>
+    </div>
+    
+    <div class="t50-row" role="row"
+         data-rank="50" data-name="expeditors international" data-sym="expd"
+         data-sector="Industrials" data-held="0"
+         data-d1="-1.37"
+         data-w1="1.38"
+         data-m1="3.61">
+      <div class="t50-rank" role="cell">50</div>
+      <div class="t50-co" role="cell">
+        <div class="t50-name"><span class="t50-rk-m">#50</span>Expeditors International
+          
+          
+        </div>
+        <div class="t50-sub"><span class="tk">EXPD</span> · Industrials</div>
+      </div>
+      <div class="t50-mom" role="cell">
+        <span class="t50-lbl">Momentum score</span>
+        <span class="v">+29.0%</span>
+        <div class="t50-bar" aria-hidden="true"><i style="width: 14.5%"></i></div>
+      </div>
+      <div class="t50-d1" role="cell"><span class="t50-lbl">1 day</span><span class="t50-chg down"
+          aria-label="1 day -1.37 percent">
+      <span class="arw" aria-hidden="true">▼</span>-1.4%
+    </span></div>
+      <div class="t50-w1" role="cell"><span class="t50-lbl">1 week</span><span class="t50-chg up"
+          aria-label="1 week +1.38 percent">
+      <span class="arw" aria-hidden="true">▲</span>+1.4%
+    </span></div>
+      <div class="t50-m1" role="cell"><span class="t50-lbl">1 month</span><span class="t50-chg up"
+          aria-label="1 month +3.61 percent">
+      <span class="arw" aria-hidden="true">▲</span>+3.6%
+    </span></div>
+      <div class="t50-px" role="cell">$195.91</div>
+    </div>
+    
+    <div class="t50-empty" id="t50-none" hidden>No stocks match these filters.</div>
+  </div>
+
+  <p class="t50-foot">
+    Universe: 500 S&amp;P 500 stocks, adjusted daily closes from Yahoo Finance.
+    Score: 126d return skipping the last 21d (6-1 momentum). Research data, not investment advice.
+    Built 2026-10-19 10:35 UTC ·
+    <a href="top50.json">JSON</a>
+  </p>
+  
+</div>
+
+<script>
+(function () {
+  // Guidance open on wide screens; on a phone it would push the list a full screen down.
+  const g = document.getElementById('t50-guide');
+  if (g && window.matchMedia('(min-width: 721px)').matches) g.open = true;
+  const list = document.getElementById('t50-list');
+  if (!list) return;
+  const rows = Array.from(list.querySelectorAll('.t50-row:not(.t50-head)'));
+  const q = document.getElementById('t50-q'), sort = document.getElementById('t50-sort');
+  const heldBtn = document.getElementById('t50-held'), count = document.getElementById('t50-count');
+  const none = document.getElementById('t50-none');
+  const chips = Array.from(document.querySelectorAll('.t50-chip'));
+  let sector = '';
+
+  function num(r, k) { const v = r.dataset[k]; return v === '' ? -Infinity : parseFloat(v); }
+
+  function apply() {
+    const term = q.value.trim().toLowerCase(), held = heldBtn.getAttribute('aria-pressed') === 'true';
+    const key = sort.value;
+    const sorted = rows.slice().sort((a, b) => {
+      if (key === 'rank') return num(a, 'rank') - num(b, 'rank');
+      if (key === 'name') return a.dataset.name.localeCompare(b.dataset.name);
+      return num(b, key) - num(a, key);
+    });
+    let shown = 0;
+    sorted.forEach(r => {
+      const ok = (!term || r.dataset.name.includes(term) || r.dataset.sym.includes(term))
+              && (!sector || r.dataset.sector === sector)
+              && (!held || r.dataset.held === '1');
+      r.hidden = !ok; if (ok) shown++;
+      list.insertBefore(r, none);
+    });
+    none.hidden = shown > 0;
+    count.textContent = shown === rows.length ? rows.length + ' stocks' : shown + ' of ' + rows.length + ' stocks';
+  }
+
+  q.addEventListener('input', apply);
+  sort.addEventListener('change', apply);
+  heldBtn.addEventListener('click', () => {
+    heldBtn.setAttribute('aria-pressed', heldBtn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+    apply();
+  });
+  chips.forEach(c => c.addEventListener('click', () => {
+    sector = c.dataset.sector;
+    chips.forEach(x => x.setAttribute('aria-pressed', x === c ? 'true' : 'false'));
+    apply();
+  }));
+})();
+</script>
+</body>
+</html>
