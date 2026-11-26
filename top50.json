@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-25T22:03:58+00:00",
+ "generated_at": "2026-11-26T22:03:43+00:00",
  "market_date": "2026-11-25",
  "score": "126d return skipping the last 21d (6-1 momentum)",
  "universe_ranked": 499,
@@ -353,9 +353,9 @@
    "price": 174.97,
    "in_portfolio": false,
    "last_date": "2026-11-25",
-   "chg_1d_pct": 6.59,
-   "chg_1w_pct": 3.53,
-   "chg_1m_pct": 8.4,
+   "chg_1d_pct": 7.03,
+   "chg_1w_pct": 3.96,
+   "chg_1m_pct": 8.85,
    "stale": false,
    "name": "CDW Corporation",
    "sector": "Information Technology"
